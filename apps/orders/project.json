@@ -1,0 +1,38 @@
+{
+  "name": "orders",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/orders/src",
+  "tags": ["type:spring-service"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw -B -f apps/orders/pom.xml package -DskipTests"
+      },
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/target"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw -B -f apps/orders/pom.xml verify"
+      },
+      "inputs": ["default", "^production"],
+      "outputs": ["{projectRoot}/target"]
+    },
+    "image": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw -B -f apps/orders/pom.xml spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=\"${IMAGE_NAME:-orders:local}\""
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "./mvnw -B -f apps/orders/pom.xml spring-boot:run"
+      }
+    }
+  }
+}

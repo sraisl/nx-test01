@@ -1,0 +1,27 @@
+package com.example.orders
+
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
+
+@WebMvcTest(HelloController::class)
+class HelloControllerTests(@Autowired private val mockMvc: MockMvc) {
+
+    @Test
+    fun `returns default greeting`() {
+        mockMvc.get("/api/orders/hello").andExpect {
+            status { isOk() }
+            jsonPath("$.message") { value("Hello, World!") }
+        }
+    }
+
+    @Test
+    fun `greets by name`() {
+        mockMvc.get("/api/orders/hello?name=Nx").andExpect {
+            status { isOk() }
+            jsonPath("$.message") { value("Hello, Nx!") }
+        }
+    }
+}

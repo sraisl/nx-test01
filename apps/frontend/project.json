@@ -1,0 +1,18 @@
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/frontend/src",
+  "projectType": "application",
+  "tags": ["type:react-app"],
+  "targets": {
+    "test": {
+      "outputs": ["{projectRoot}/test-results"]
+    },
+    "image": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f apps/frontend/Dockerfile -t \"${IMAGE_NAME:-frontend:local}\" ."
+      }
+    }
+  }
+}
