@@ -1,0 +1,17 @@
+package <%= packageName %>
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class <%= className %>GreeterTests {
+
+    @Test
+    fun `greets by name`() {
+        assertEquals("Hello, Nx!", <%= className %>Greeter().greet("Nx"))
+    }
+
+    @Test
+    fun `greets the world by default`() {
+        assertEquals("Hello, World!", <%= className %>Greeter().greet())
+    }
+}

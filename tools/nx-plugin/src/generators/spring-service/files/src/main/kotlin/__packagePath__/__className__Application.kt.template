@@ -1,0 +1,13 @@
+package <%= packageName %>
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class <%= className %>Application
+
+// The spread copies args once at startup; this is the standard Spring Boot entry point.
+@Suppress("SpreadOperator")
+fun main(args: Array<String>) {
+    runApplication<<%= className %>Application>(*args)
+}

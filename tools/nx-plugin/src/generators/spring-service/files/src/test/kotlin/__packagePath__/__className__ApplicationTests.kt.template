@@ -1,0 +1,13 @@
+package <%= packageName %>
+
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
+@SpringBootTest
+class <%= className %>ApplicationTests {
+
+    @Test
+    fun contextLoads() {
+        // Passes if the Spring application context starts; no further assertions needed.
+    }
+}

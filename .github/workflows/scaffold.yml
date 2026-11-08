@@ -1,0 +1,148 @@
+name: Scaffold services
+
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Comma-separated <type>:<name>, e.g. kotlin-lib:common,spring-service:orders,react-app:web'
+        required: true
+        type: string
+      links:
+        description: 'Optional comma-separated <project>:<dependency>, e.g. orders:common,web:orders'
+        required: false
+        type: string
+        default: ''
+      group-id:
+        description: Maven groupId
+        required: false
+        type: string
+        default: com.example
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: scaffold-${{ github.run_id }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  scaffold:
+    name: Scaffold and open pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        env:
+          SERVICES: ${{ inputs.services }}
+          LINKS: ${{ inputs.links }}
+          GROUP_ID: ${{ inputs.group-id }}
+        run: |
+          name='[a-z][a-z0-9-]{1,40}'
+          item="(kotlin-lib|spring-service|react-app):${name}"
+          link="${name}:${name}"
+          if ! [[ "$SERVICES" =~ ^${item}(,${item})*$ ]]; then
+            echo "::error::Invalid 'services'. Expected <type>:<name>[,<type>:<name>...] with type kotlin-lib|spring-service|react-app and name ${name}"
+            exit 1
+          fi
+          if [[ -n "$LINKS" ]] && ! [[ "$LINKS" =~ ^${link}(,${link})*$ ]]; then
+            echo "::error::Invalid 'links'. Expected <project>:<dependency>[,<project>:<dependency>...]"
+            exit 1
+          fi
+          if ! [[ "$GROUP_ID" =~ ^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$ ]]; then
+            echo "::error::Invalid 'group-id'. Expected a lowercase dotted package name, e.g. com.example"
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true # needed to push the scaffold branch
+
+      - uses: ./.github/actions/setup
+
+      - name: Generate projects
+        env:
+          SERVICES: ${{ inputs.services }}
+          LINKS: ${{ inputs.links }}
+          GROUP_ID: ${{ inputs.group-id }}
+        run: |
+          args=(--services="$SERVICES" --groupId="$GROUP_ID" --no-interactive)
+          if [[ -n "$LINKS" ]]; then
+            args+=(--links="$LINKS")
+          fi
+          npx nx g @platform/nx-plugin:bootstrap "${args[@]}"
+          npx nx format:write
+
+      - id: commit
+        name: Commit and push branch
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "::error::The generators produced no changes."
+            exit 1
+          fi
+          branch="feature/scaffold-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -A
+          git commit -m "feat: scaffold services via workflow run ${GITHUB_RUN_ID}"
+          git push origin "$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+      - id: pr
+        name: Open pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SERVICES: ${{ inputs.services }}
+          LINKS: ${{ inputs.links }}
+          GROUP_ID: ${{ inputs.group-id }}
+          BRANCH: ${{ steps.commit.outputs.branch }}
+        run: |
+          {
+            echo "Scaffolded by workflow run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}."
+            echo
+            echo "**Requested services:** \`${SERVICES}\`  "
+            echo "**Links:** \`${LINKS:-none}\`  "
+            echo "**groupId:** \`${GROUP_ID}\`"
+            echo
+            echo "### Projects in the workspace"
+            echo
+            while IFS= read -r p; do echo "- \`$p\`"; done < <(npx nx show projects)
+            echo
+            echo "> **Note:** Pull requests created with \`GITHUB_TOKEN\` do not trigger CI workflows."
+            echo "> Push an empty commit (\`git commit --allow-empty -m 'ci: trigger'\`) or close and reopen"
+            echo "> this PR to run the required checks. (Alternative: create the PR with a GitHub App token.)"
+          } > pr-body.md
+          url="$(gh pr create --base main --head "$BRANCH" \
+            --title "feat: scaffold services" --body-file pr-body.md)"
+          rm pr-body.md
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        if: always()
+        env:
+          SERVICES: ${{ inputs.services }}
+          LINKS: ${{ inputs.links }}
+          GROUP_ID: ${{ inputs.group-id }}
+          BRANCH: ${{ steps.commit.outputs.branch }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "## Scaffold services"
+            echo
+            echo "- Trigger: \`workflow_dispatch\`, ref \`$GITHUB_REF\`"
+            echo "- Services: \`${SERVICES}\`"
+            echo "- Links: \`${LINKS:-none}\`"
+            echo "- groupId: \`${GROUP_ID}\`"
+            echo "- Branch: \`${BRANCH:-n/a}\`"
+            echo "- Pull request: ${PR_URL:-n/a}"
+            echo "- Result: **${JOB_STATUS}**"
+            echo
+            echo "> PRs created with \`GITHUB_TOKEN\` do not trigger CI. Push an empty commit or close/reopen the PR to run checks."
+          } >> "$GITHUB_STEP_SUMMARY"

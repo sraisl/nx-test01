@@ -1,0 +1,29 @@
+# Node / Nx
+node_modules/
+.nx/cache/
+.nx/workspace-data/
+
+# Maven
+target/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local agent settings
+.claude/settings.local.json
+
+# Maven Wrapper (only-script distribution, jar not needed)
+.mvn/wrapper/maven-wrapper.jar
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+.vitest
+
+# JavaScript build and test output
+dist/
+coverage/
+test-results/
+

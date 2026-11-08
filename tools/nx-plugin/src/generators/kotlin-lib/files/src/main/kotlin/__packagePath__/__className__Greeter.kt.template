@@ -1,0 +1,7 @@
+package <%= packageName %>
+
+/** Sample class of the <%= name %> library; replace with real code. */
+class <%= className %>Greeter {
+
+    fun greet(name: String = "World"): String = "Hello, $name!"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "nx-plugin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "tools/nx-plugin/src",
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default"],
+      "options": {
+        "command": "node --test \"tools/nx-plugin/src/**/*.test.js\""
+      }
+    }
+  }
+}

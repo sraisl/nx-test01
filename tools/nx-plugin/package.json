@@ -1,0 +1,11 @@
+{
+  "name": "@platform/nx-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Generators for services and libraries in this monorepo (only depends on @nx/devkit).",
+  "main": "index.js",
+  "generators": "./generators.json",
+  "peerDependencies": {
+    "@nx/devkit": "24.0.4"
+  }
+}

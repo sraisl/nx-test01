@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "PlatformBootstrap",
+  "cli": "nx",
+  "title": "Bootstrap projects",
+  "description": "Create several services and libraries at once and wire their dependencies.",
+  "type": "object",
+  "properties": {
+    "services": {
+      "type": "string",
+      "description": "Comma-separated <type>:<name>; types: kotlin-lib, spring-service, react-app. Example: kotlin-lib:common,spring-service:orders,react-app:web",
+      "x-prompt": "Projects to create (<type>:<name>, comma-separated)?"
+    },
+    "links": {
+      "type": "string",
+      "description": "Comma-separated <project>:<dependency>. Example: orders:common,web:orders"
+    },
+    "groupId": {
+      "type": "string",
+      "description": "Maven groupId for kotlin-lib and spring-service projects.",
+      "default": "com.example"
+    }
+  },
+  "required": ["services"]
+}

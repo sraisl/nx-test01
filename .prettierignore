@@ -1,0 +1,17 @@
+# Prettier formats the JavaScript/TypeScript part only; Kotlin, Maven, workflows and docs are excluded.
+*
+!apps/
+!apps/**
+!libs/
+!libs/**
+!tools/
+!tools/nx-plugin/
+!tools/nx-plugin/**
+!*.config.mjs
+!*.config.mts
+**/target/
+**/src/main/resources/**
+**/*.md
+dist/
+coverage/
+test-results/

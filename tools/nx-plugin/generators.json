@@ -1,0 +1,29 @@
+{
+  "generators": {
+    "bootstrap": {
+      "factory": "./src/generators/bootstrap/generator",
+      "schema": "./src/generators/bootstrap/schema.json",
+      "description": "Create several services and libraries at once and wire their dependencies."
+    },
+    "spring-service": {
+      "factory": "./src/generators/spring-service/generator",
+      "schema": "./src/generators/spring-service/schema.json",
+      "description": "Spring Boot service (Kotlin, Maven, Paketo image) under apps/<name>."
+    },
+    "kotlin-lib": {
+      "factory": "./src/generators/kotlin-lib/generator",
+      "schema": "./src/generators/kotlin-lib/schema.json",
+      "description": "Kotlin Maven library under libs/<name>."
+    },
+    "react-app": {
+      "factory": "./src/generators/react-app/generator",
+      "schema": "./src/generators/react-app/schema.json",
+      "description": "React app (Vite) with nginx image under apps/<name>."
+    },
+    "link": {
+      "factory": "./src/generators/link/generator",
+      "schema": "./src/generators/link/schema.json",
+      "description": "Add a dependency between two projects (Maven library or backend for a React app)."
+    }
+  }
+}

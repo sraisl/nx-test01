@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-test:
+    name: Build and test (affected)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read # nx-set-shas looks up the last successful run on main
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: Determine base and head
+        uses: nrwl/nx-set-shas@e602fada7ad5987b0f7b1905e7a99ea1c661514c # v5.1.0
+        with:
+          main-branch-name: main
+
+      - id: affected
+        name: Affected projects
+        run: |
+          echo "NX_BASE=$NX_BASE NX_HEAD=$NX_HEAD"
+          {
+            echo "projects<<EOF_PROJECTS"
+            npx nx show projects --affected
+            echo "EOF_PROJECTS"
+          } >> "$GITHUB_OUTPUT"
+
+      - id: build-test
+        name: Format check, lint, typecheck, build and test
+        run: |
+          npx nx format:check
+          npx nx affected -t lint typecheck build test
+
+      - name: Summary
+        if: always()
+        env:
+          OUTCOME: ${{ steps.build-test.outcome }}
+          AFFECTED: ${{ steps.affected.outputs.projects }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          {
+            echo "## Build and test (affected)"
+            echo
+            echo "- Trigger: \`$EVENT\`"
+            echo "- Ref: \`$GITHUB_REF\`"
+            echo "- Range: \`${NX_BASE:-?}..${NX_HEAD:-?}\`"
+            echo "- Result: **${OUTCOME:-not run}**"
+            echo
+            echo "### Affected projects"
+            echo
+            if [[ -n "$AFFECTED" ]]; then
+              while IFS= read -r p; do echo "- \`$p\`"; done <<< "$AFFECTED"
+            else
+              echo "_none_"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

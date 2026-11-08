@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "PlatformLink",
+  "cli": "nx",
+  "title": "Link projects",
+  "description": "Add a dependency: kotlin-lib to a spring-service/kotlin-lib (pom.xml + implicitDependencies), or a spring-service as backend of a react-app (Vite proxy + API_URL).",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Dependent project (spring-service, kotlin-lib or react-app).",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Which project gets the dependency?"
+    },
+    "dependency": {
+      "type": "string",
+      "description": "Dependency (kotlin-lib, or spring-service for a react-app).",
+      "$default": { "$source": "argv", "index": 1 },
+      "x-prompt": "Which project should it depend on?"
+    }
+  },
+  "required": ["project", "dependency"]
+}

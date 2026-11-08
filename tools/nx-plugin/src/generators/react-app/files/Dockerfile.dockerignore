@@ -1,0 +1,4 @@
+# Used by BuildKit for apps/<%= name %>/Dockerfile (context: workspace root). Only send what it copies.
+*
+!apps/<%= name %>/nginx/
+!dist/apps/<%= name %>/

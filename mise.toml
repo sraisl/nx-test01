@@ -1,0 +1,7 @@
+# Single source of truth for tool versions (local and CI).
+# Maven comes via ./mvnw, Nx via package.json. Docker is a prerequisite.
+[tools]
+java = "temurin-25.0.5+8.0.LTS"
+node = "26.13.0"
+crane = "0.22.1"
+actionlint = "1.7.12"

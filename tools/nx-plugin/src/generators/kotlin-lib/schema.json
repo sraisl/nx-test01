@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "PlatformKotlinLib",
+  "cli": "nx",
+  "title": "Kotlin library",
+  "description": "Kotlin Maven library under libs/<name>.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project name (also Maven artifactId), e.g. common.",
+      "pattern": "^[a-z][a-z0-9-]{1,40}$",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Name of the library?"
+    },
+    "groupId": {
+      "type": "string",
+      "description": "Maven groupId; the Kotlin package is <groupId>.<name without dashes>.",
+      "default": "com.example"
+    }
+  },
+  "required": ["name"]
+}
